@@ -14,10 +14,11 @@ pkgs <- c (
   "GGally",
   "tidyverse",
   "plotly",
-  "reshape2"
+  "reshape2","mnormt","psych"
 )
 
 
 install_or_load_pack(pkgs)
 
 version
+
