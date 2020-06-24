@@ -165,7 +165,7 @@ z
 #   you want to perform a mathematical operation on, then you generally
 #   want a matrix (e.g., correlation matrix, covariance matrix, 
 #   distance matrix in MDS, matrices used for matrix algebra).
-```
+
 
 
 
@@ -173,29 +173,29 @@ z
 
 # Working with data frames
 # Let's use the built-in survey data.frame dataset
-library(MASS)
-data(survey)
-?survey
-rdata <- na.omit(survey) # for simplicity I'll exclude missing data
-shortdata <- mydata[1:6, 1:5] 
-shortdata
+
+# https://vincentarelbundock.github.io/Rdatasets/doc/ISLR/Auto.html
+
+rdata <- read.csv("http://faculty.marshall.usc.edu/gareth-james/ISL/Auto.csv")
+
+rdata <- na.omit(rdata) # for simplicity I'll exclude missing data
+
 
 ################################################
 # Extracting observations (i.e., rows) and 
 # variables (i.e., columns).
 # There are similarities to matrices and lists
 # Select observations
-shortdata[1:5, ] # by row number
-shortdata[c(5,4,3,2,1), ] # re-order
-shortdata[ shortdata$Sex == "Female", ] # by logical vector
-shortdata[c("1", "2"), ] # by rownames
+rdata[1:5, ] # by row number
+rdata[c(5,4,3,2,1), ] # re-order
+rdata[ rdata$origin == 1, ] # by logical vector
+rdata[c("1", "2"), ] # by rownames
 
 # Select variables 
-shortdata[, c(1,2)] # by position like a matrix
-shortdata[c(1,2)] # by position like a list
-shortdata[ ,c("Sex", "Fold")] # by name like a matrix
-shortdata[c("Sex", "Fold")] #
-shortdata$Sex # by name to get a single variable
+rdata[, c(1,2)] # by position like a matrix
+rdata[c(1,2)] # by position like a list
+rdata[ ,c("cylinders", "name")] # by name like a matrix
+rdata$name # by name to get a single variable
 
 
 #################################################
@@ -209,19 +209,19 @@ rownames(shortdata) # rows can also have names
 
 
 # Examine first few rows
-head(mydata) # first 6 rows
-head(mydata, n = 10) # first 7 rows
-tail(mydata) # last few rows
-# View(mydata) # Rstudio function to open data in viewer
+head(rdata) # first 6 rows
+head(rdata, n = 10) # first 7 rows
+tail(rdata) # last few rows
+# View(rdata) # Rstudio function to open data in viewer
 # or click on the icon in the Environment pane
 
 # How many rows and columns?
-dim(mydata) # rows and column counts
-nrow(mydata) # row count
-ncol(mydata) # column count
+dim(rdata) # rows and column counts
+nrow(rdata) # row count
+ncol(rdata) # column count
 
 # Examine structure
-str(mydata)
+str(rdata)
 
 
 # Getting help
@@ -230,5 +230,3 @@ str(mydata)
 ?mean 
 help(mean) # or use help function
 
-# to look up package
-help(package = "MASS")

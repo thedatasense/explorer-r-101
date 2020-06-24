@@ -1,0 +1,73 @@
+---
+title: "Explorer R 101"
+author: "Binesh Kumar"
+date: "6/24/2020"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Data Analysis Using R
+
+This is a code walk through on some of the key features of **R** 
+
+The session was initialy designed for a 3 hour workshop, however because of Work From Home situation condensed to walk-through session.
+
+Please feel free to reach out to Binesh Kumar for any questions.
+
+## What is R?
+
+- "R is an open source software environment for statistical computing and graphics" - http://www.r-project.org
+- It is a full-featured statistical analysis package (e.g., like SAS, Stata, SPSS, etc.) that allows you to:
+-- Import and export data in a wide range of formats
+-- Manipulate data
+-- Analyse data
+-- Graphically represent data
+- It is a full-featured programming language designed for data analysis
+- Why the name "R"?
+-- First letter of two originators: Ross Ihaka and Robert Gentleman
+-- Built on a earlier language called "S"
+
+
+## Basic Arithmetic and Logical Operations
+- You can use R like a calculator 
+
+```{r cars, echo = TRUE}
+
+1 + 1 # addition
+
+10 - 9 # subtraction
+
+10 * 10 # multiplication
+
+100 / 10 # division
+
+10 ^ 2 # exponentiation
+
+abs(-10) # absolute value
+
+ceiling(3.5) # round up to next integer
+
+floor(3.5) # round down to next integer
+
+sqrt(100) # square roots
+
+exp(2) # exponential
+
+pi # mathematical constant pi
+
+exp(1) # mathematical constant e
+
+log(100) # natural logs (i.e., base e)
+
+log(100, base= 10) # base 10 logs
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
