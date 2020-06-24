@@ -14,11 +14,14 @@ pkgs <- c (
   "GGally",
   "tidyverse",
   "plotly",
-  "reshape2","mnormt","psych"
+  "reshape2","sparklyr","psych", "corrplot","h2o"
 )
 
 
 install_or_load_pack(pkgs)
 
-version
+library(sparklyr)
+spark_install("2.3")
 
+library(sparklyr)
+sc <- spark_connect(master = "local", version = "2.3")
