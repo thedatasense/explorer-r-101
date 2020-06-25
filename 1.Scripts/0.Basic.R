@@ -58,3 +58,5 @@ mean(x > 5) # mean of a 0-1 variable is a proportion
 
 
 
+
+
