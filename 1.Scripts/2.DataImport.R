@@ -1,3 +1,4 @@
+install.packages("tidyverse")
 
 # Data Import
 
@@ -8,9 +9,12 @@
 
 # https://vincentarelbundock.github.io/Rdatasets/doc/ISLR/Auto.html
 
-rdata <- read_csv("http://faculty.marshall.usc.edu/gareth-james/ISL/Auto.csv")
+auto_raw <- read_csv("https://raw.githubusercontent.com/thedatasense/explorer-r-101/master/2.Data/auto.csv")
+auto_prices <- read_csv("https://raw.githubusercontent.com/thedatasense/explorer-r-101/master/2.Data/auto_prices.csv")
 
-rdata <- na.omit(rdata) # for simplicity I'll exclude missing data
+rdata <- 
+  auto_raw %>% 
+  left_join(auto_prices)
 
 
 ################################################
@@ -47,13 +51,23 @@ ncol(rdata) # column count
 str(rdata)
 
 
-install.packages("tidyverse")
-
-glimpse(rdata)
-
-help("dplyr")
 
 
+
+# Notice that horsepower is read in as character, where it should be 
+# a number
+rdata$horsepower <- as.double(rdata$horsepower)
+# Notice that horsepower is read in as number, where it should be 
+# a factor
+rdata$cylinders <- as.factor(rdata$cylinders)
+
+# Notice that model is read in as number, where it should be 
+# a factor
+rdata$model <- as.factor(rdata$model)
+
+
+# Examine structure
+str(rdata)
 
 # Getting help
 # Use question mark (i.e., ?) followed by command name
@@ -64,16 +78,9 @@ help(mean) # or use help function
 
 
 
-#2. From Database
 
 
-library(odbc)
-sort(unique(odbcListDrivers()[[1]]))
-sql_translate_env.JDBCConnection <- dbplyr:::sql_translate_env.Oracle
-sql_select.JDBCConnection <- dbplyr:::sql_select.Oracle
-sql_subquery.JDBCConnection <- dbplyr:::sql_subquery.Oracle
 
 
-gch_tbl <- dplyr::tbl(mitg_signia_orc, dbplyr::in_schema('TWX_USER', 'MAT_VW_HANDLE_GCH_SUMMARY_MERGE_CODES'))
 
-gch_tbl <- dbGetQuery(mitg_signia_orc, "SELECT * FROM MAT_VW_HANDLE_GCH_SUMMARY_MERGE_CODES")
+

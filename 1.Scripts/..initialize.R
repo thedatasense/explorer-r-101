@@ -17,6 +17,7 @@ pkgs <- c (
   "reshape2","sparklyr","psych", "corrplot","h2o"
 )
 
+install.packages("webshot")
 
 install_or_load_pack(pkgs)
 

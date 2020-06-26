@@ -1,89 +1,224 @@
+# Install & Load Packages -------------------------------------------------
+
+install.packages("DataExplorer")
+install.packages("tidyverse")
+install.packages("plotly")
+install.packages("corrplot")
+library(DataExplorer)
+library(tidyverse)
+library(plotly)
+library(corrplot)
+
 # Visualization
-# 
-#   
 # 1.Base graphics
 # 2.plotly & ggplot2
-str(rdata)
-#1. Base graphics
-# scatterplot
-plot(rdata$mpg, rdata$weight)
-plot(mpg ~ weight, rdata)
-plot(rdata$weight)
+
+
+# 1. Visual Inspection of Statistical Summary
+
+summary(cars %>% select_if(is.numeric))
+
 
 # distribution
-hist(rdata$weight, 10) # histogram
-stem(rdata$weight) # Stem and leaf plot
-plot(density(rdata$weight)) # density plot
-boxplot(rdata$weight) # box plot
-boxplot(rdata$weight ~ rdata$cylinders) # box plot by group
+hist(cars$mpg, 10, main = "Histogram of Miles per Gallon") # histogram
+hist(cars$mpg, main = "Histogram of Miles Per Gallon", xlab = "Miles Per Gallon")
 
-# categorical variables
-plot(as.factor(rdata$cylinders))
-plot(prop.table(table(as.factor(rdata$cylinders))))
-
-# plot co-variation of multiple numeric variables 
-pairs( rdata[, c("mpg", "horsepower", "acceleration", "weight") ])
+plot(density(cars$mpg)) # density plot
 
 
-
-
-
-
-# Graphics options
-# Base graphics uses a "painting the page metaphor"
-
-# add options to the main plotting functions
-plot(rdata$weight, rdata$mpg,
-     xlab = "Weight",  # x-axis label
-     ylab = "Miles Per Gallon",      # y-axis label
-     pch = 2,          # plotting character
-     las = 1      # orientation of axis labels
-
+plot(
+  cars$mpg,
+  cars$horsepower,
+  main = "Miles Per Gallon Vs Horse Power",
+  xlab = "Miles Per Gallon",
+  ylab = "Horse Power"
 )
-
-# overlay different elements
-title("Weight Vs Miles Per Gallon") # add title to top of plot
-abline(h = mean(rdata$mpg), lty = 2, col = "red") # add straight line
-abline(v= mean(rdata$weight), lty = 2, col = "blue")  # add straight line
-text(2200,45, "bad apple") # add text
+abline(v = mean(cars$mpg),
+       lty = 2,
+       col = "red") # add straight line
+text(34, 120, "bad apple", col = "red") # add text
 
 
 
+boxplot(cars$mpg, main = "Box Plot of MPG", xlab = "Miles Per Gallon") # box plot
 
 
-# Let's look at the ais dataset
-str(rdata)
-
-# See the Rstudio ggplot2 cheatsheet 
+# See the Rstudio ggplot2 cheatsheet
 # and the ggplot2 documentation: http://docs.ggplot2.org/current/
 
 # specify the data frame and the mapping of variables to plot attributes
 
-# scatter plot
-# 1. supply a data.frame
-# 2. add aesthetic mapping between variables in data.frame
-#    and 
-ggplot(rdata, aes(x = weight, y = mpg)) + geom_point()
 
-p <- ggplot(rdata, aes(x = weight, y = mpg, colour = as.factor(origin))) + 
-  geom_point() + 
-  geom_smooth() + 
-  xlab("Weight") +
-  ylab("Mpg")
+## Univariate analysis
+
+## Let's look at the distribution of MPG Spread
+
+ggplot(cars, aes(mpg)) +
+  geom_histogram(
+    binwidth = 5,
+    fill = "#004B87",
+    color = "#e9ecef",
+    alpha = 0.9
+  ) +
+  labs(title = "Histogram of MPG", y = "Count", x = "Miles Per Gallon") +
+  theme_bw()
+
+
+mdtcolors <-
+  c("#001E46",
+    "#004B87",
+    "#00A9E0",
+    "#E35205",
+    "#B0008E",
+    "#77BC1F")
+
+
+
+## Let's look at Dataset by Country
+
+p <- ggplot(cars, aes(Region)) +
+  geom_bar(fill = "#B0008E", color = "#e9ecef") +
+  labs(title = "Where is the data from?", y = "Count") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
+
+
+## Let's look at the Density of Miles Per Gallon by Region
+
+p <- ggplot(data    = cars,
+            mapping = aes(x = mpg, fill = Region)) +
+  labs(title = "Density of MPG By Region", y = "Density", x = "Miles Per Gallon") +
+  geom_density(alpha = 0.8) +
+  scale_fill_manual(values = mdtcolors) +
+  theme_bw()
+
 ggplotly(p)
 
-ggsave("3.Outputs/height_weight.pdf", width = 5, height = 5) # save last plot
 
-# distribution
-p <- ggplot(rdata, aes(x = Height)) 
-p + geom_histogram() #histogram
-p + geom_density(fill = "blue") # density plot
+## Let's look at the Distribution of Number of Cylinders
 
-# Show group differences
-p <- ggplot(rdata, aes(x = Smoke, y = Height)) 
-p + geom_boxplot()
+ggplot(cars, aes(cylinders)) +
+  geom_bar(fill = "#004B87", color = "#e9ecef") +
+  labs(title = "Distribution of Number of Cylinders", y = "Count") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
 
-str(rdata)
+# For cylinders we can see that 4 cylinders is 2 times more often than 8 cylinders
 
-correlations = cor(rdata[, c("mpg", "horsepower", "acceleration", "weight")])
+# Let's look at the Horse Power
+
+p <- ggplot(cars, aes(Region, horsepower, fill = Region)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Horse Power", y = "Horse Power") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
+
+ggplotly(p)
+
+
+# Let's look at the Displacement
+
+p <- ggplot(cars, aes(Region, displacement, fill = Region)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Displacement", y = "Displacement") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
+
+ggplotly(p)
+
+
+# Let's look at the Weight
+
+p <- ggplot(cars, aes(Region, weight, fill = Region)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Weight", y = "Weight") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
+
+ggplotly(p)
+
+
+# Let's look at the Acceration
+
+p <- ggplot(cars, aes(Region, acceleration, fill = Region)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Acceleration", y = "Acceration") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
+
+ggplotly(p)
+
+
+
+# Let's look at the Price
+
+p <- ggplot(cars, aes(Region, price, fill = Region)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Price", y = "Price($)") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
+
+ggplotly(p)
+
+
+# With little bit of reshaping, we can plot it all together. 
+
+carlong <-  cars %>% 
+  select(Region,mpg,displacement,horsepower,weight,price) %>% 
+  gather(key="variable",value = "value",mpg,displacement,horsepower,weight,price) 
+
+p <- ggplot(carlong, aes(Region, value, fill = Region)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Price", y = "Price($)") +
+  scale_fill_manual(values = mdtcolors) +
+  facet_wrap( ~ variable, ncol=2) +
+  theme_minimal()
+
+ggplotly(p)
+
+
+# Multivariate Analysis
+
+correlations = cor(cars[, c("mpg", "horsepower", "acceleration", "weight")])
 corrplot(correlations)
+
+# Look at the positive correlation between mpg,acceleration
+
+p <- ggplot(cars, aes(mpg,acceleration,color=Region)) + 
+  geom_jitter() + 
+  theme_minimal() +
+  labs(title = "Miles Per Gallon Vs Acceleration", y = "Acceleration",x="Miles Per Gallon") + 
+  geom_smooth(method = "lm", se = FALSE) + 
+  scale_colour_manual(values = mdtcolors)
+
+ggplotly(p)
+
+
+# Look at the negative correlation between mpg,weight
+
+
+p <- ggplot(cars, aes(mpg,weight,color=Region)) + 
+  geom_jitter() + 
+  theme_minimal() +
+  labs(title = "Miles Per Gallon Vs Weight", y = "Weight(lb)",x="Miles Per Gallon") + 
+  geom_smooth(method = "lm", se = FALSE) + 
+  scale_colour_manual(values = mdtcolors)
+
+ggplotly(p)
+
+
+
+## Time for some time series analysis
+
+yearlytrend <- cars %>% 
+  group_by(Region,modelyear) %>% 
+  summarise(medmpg = max(mpg)) %>% 
+  ungroup()
+
+fig <-plot_ly(yearlytrend, mode = 'lines',x = ~modelyear, y =~medmpg,color =~Region)
+ fig <- fig %>% layout(
+   title = "Miles Per Galon Trend Over Years",
+     xaxis = list(title = "Year of Make"),
+     yaxis = list(title = "MPG"),
+   )
+

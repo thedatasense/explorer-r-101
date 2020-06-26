@@ -1,0 +1,233 @@
+---
+title: "Explorer-R-Car-Analysis-Report"
+author: "Binesh Kumar"
+date: "6/25/2020"
+output:
+  word_document:
+    reference_docx: template.docx
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(DataExplorer)
+library(plotly)
+library(corrplot)
+webshot::install_phantomjs()
+mdtcolors <-
+  c("#001E46",
+    "#004B87",
+    "#00A9E0",
+    "#E35205",
+    "#B0008E",
+    "#77BC1F")
+
+```
+
+```{r message=TRUE, warning=FALSE, include=FALSE}
+
+auto_raw <- read_csv("https://raw.githubusercontent.com/thedatasense/explorer-r-101/master/2.Data/auto.csv")
+auto_prices <- read_csv("https://raw.githubusercontent.com/thedatasense/explorer-r-101/master/2.Data/auto_prices.csv")
+
+cars <- auto_raw %>% left_join(auto_prices)
+
+cars$cylinders <- as.factor(cars$cylinders)
+cars$model <- as.factor(cars$model)
+cars$model <- as.factor(cars$model)
+cars$price <- as.integer(cars$price)
+cars$origin <- as.factor(cars$origin)
+cars$car_name <- as.factor(cars$car_name)
+cars$horsepower<- as.numeric(cars$horsepower)
+cars$ID<- as.factor(cars$ID)
+
+# Mutate for adding new variables
+cars <- cars %>%
+  mutate(Region=as.factor(case_when(
+    origin ==  1 ~ "American",
+    origin ==2 ~ "European",
+    TRUE ~ "Japanese"
+  ))) %>% 
+  mutate(modelyear=as.Date(paste(12,31,paste(19,model,sep=""),sep="-"),format='%m-%d-%Y')) 
+
+```
+
+  ![](https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRSkAxSRks3TP82d4etLMCfHyX2pQpVEBBOvg&usqp=CAU)
+
+
+
+\newpage
+
+## 1. Introduction
+
+The objective of this study is to understand the evolution of efficiency in cars manufactured between `r min(auto_raw$model)` and `r max(auto_raw$model)`.
+ 
+
+## 2. Dataset 
+
+
+Here are the variables in  Car details data set. We have `r nrow(cars)` rows in the datasets with `r ncol(cars)` variables.
+
+Few sample rows from the dataset.  
+
+```{r}
+sample(cars,10)
+```
+
+
+
+## 3. Analysis
+
+
+### 3.1 Statistical summary of the Variables
+
+```{r}
+summary(cars %>% select(-c(ID,car_name)))
+
+
+```
+
+
+### 3.2 Distribution of Variables
+
+#### Miles Per Gallon
+
+Majoriy of the data points we have are between 15 and 30 Miles per gallon.
+
+<!--/html_preserve-->
+
+```{r echo=FALSE}
+ p <- ggplot(cars, aes(mpg)) +
+  geom_histogram(
+    binwidth = 5,
+    fill = "#004B87",
+    color = "#e9ecef",
+    alpha = 0.9
+  ) +
+  labs(title = "Histogram of MPG", y = "Count", x = "Miles Per Gallon") +
+  theme_bw()
+ggplotly(p)
+
+```
+
+<!--htmlpreserve-->
+
+
+#### Number of Cylinders  
+
+For cylinders we can see that 4 cylinders is 2 times more often than 8 cylinders
+
+
+```{r echo=FALSE, warning=FALSE}
+ggplot(cars, aes(cylinders)) +
+  geom_bar(fill = "#004B87", color = "#e9ecef") +
+  labs(title = "Distribution of Number of Cylinders", y = "Count") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
+```
+
+#### Horse Power By Region Of Origin
+
+Median horse power of American Made cars are 30% more than the European and Japanese made cars
+
+```{r echo=FALSE, warning=FALSE}
+p <- ggplot(cars, aes(Region, horsepower, fill = Region)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Horse Power", y = "Horse Power") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
+
+ggplotly(p)
+```
+### Price
+
+For price we decided to do some pre processing to make more simpler. We are going to keep only the value before the point. For example:
+If we have 1598.07337 we are going to keep only 1598.
+
+We made this decision because we believe that the value after the point is meaningless.
+
+Median value of cars from the three regions are the same.
+
+
+```{r echo=FALSE}
+p <- ggplot(cars, aes(Region, price, fill = Region)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of Price By Region", y = "Price($)") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_minimal()
+
+ggplotly(p)
+
+```
+
+```{r echo=FALSE, fig.align='center', message=FALSE, warning=FALSE}
+to_Plot <- as.data.frame(table(cars$price))
+colnames(to_Plot) <- c("Price", "Frequency")
+
+p <- ggplot(head(to_Plot[ order(-to_Plot[,2]), ]), aes(x = reorder(Price, Frequency), y = Frequency)) + 
+  geom_bar(stat = "identity") +
+  labs(title = "Frequency of Price", x = "Price") +
+  scale_fill_manual(values = mdtcolors) +
+  theme_classic() + 
+  coord_flip()
+
+ggplotly(p)
+```
+
+With this visualization we can see that we have 3 price that repeat more than 40 times. We have 219 unique prices. This could be a problem if we have to predict the price of the cars because we have unbalanced data
+
+### 3.3 Correlation
+
+At this plot we can see the correlation between all features. Two features can have a positive correlation, a negative correlation and a neutral correlation
+When the dot is red that means that is a negative correlation. Which means when one value is getting high the other value is getting slow. The biggest is the dot more negative is the value 
+When the dot is blue it is a positive correlation
+Blank means that this two variables has no correlation
+
+
+```{r echo=FALSE, fig.align='center', message=FALSE, warning=FALSE}
+# Transforming from factor to numeric
+cars$horsepower <- as.numeric(as.character(cars$horsepower))
+
+# Removing not complete row 
+cars <- cars[complete.cases(cars),]
+
+# Removing the ID
+cars <- cars[,-1]
+
+nums <- sapply(cars, is.numeric)
+correlations <- cor(cars[,nums])
+corrplot(correlations, order = "hclust")
+```
+Looking at the MPG we can see that MPG has an negative correlation with horsepower, weight, cylinders and displacement which make total sense. 
+In the other hand MPG has an positive correlation with origin, acceleration and model. 
+The correlation between price and mpg is neutral. 
+
+#### Correlation Some Individual Visualization
+
+To become more clear about positive correlation, a negative correlation and a neutral correlation we are going to get some example from our dataset. 
+
+#### Positive Correlation
+
+We saw that MPG and Origin has a strong positive correlation. And you can confirm that at the next graphic:
+
+
+```{r echo=FALSE}
+p <- ggplot(cars, aes(mpg,acceleration,color=Region)) + 
+  geom_jitter() + 
+  theme_minimal() +
+  labs(title = "Miles Per Gallon Vs Acceleration", y = "Acceleration",x="Miles Per Gallon") + 
+  geom_smooth(method = "lm", se = FALSE) + 
+  scale_colour_manual(values = mdtcolors)
+
+ggplotly(p)
+```
+
+
+## Conclusion
+
+I dont have any background with cars but the negative correlation between mpg and horsepower, weight, cylinders and displacement made sense. But for me I didnt understate why mpg and acceleration has positive correlation, I was expecting an negative correlation. 
+
+Another surprise for me during the Exploratory data analysis was that price and mpg has no correlation. 
+
+For the next step I'm excited to create and run some model to predict the price of the cars based at this dataset. How good can be my model with only this data? It the Rsquared that I could find good enough?
